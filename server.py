@@ -1,23 +1,28 @@
 from flask import Flask, render_template, request
-from SentimentAnalysis.sentiment_analysis import sentiment_analyzer
+from EmotionDetection.emotion_detection import emotion_detector
 
-app = Flask("Sentiment Analyzer")
+app = Flask("Emotion Detector")
 
-@app.route("/sentimentAnalyzer")
-def sent_analyzer():
+@app.route("/emotionDetector")
+def em_detector():
     text_to_analyze = request.args.get('textToAnalyze')
-    response = sentiment_analyzer(text_to_analyze)
+    response = emotion_detector(text_to_analyze)
     
-    label = response['label']
-    score = response['score']
-    
-    if label is None:
-        return "Invalid input! Try again."
-    else:
-        return "The given text has been identified as {} with a score of {}.".format(label.split('_')[1], score)
+    if response['dominant_emotion'] is None:
+        return "Invalid text! Please try again!"
+        
+    return (
+        f"For the given statement, the system response is 'anger': {response['anger']}, "
+        f"'disgust': {response['disgust']}, 'fear': {response['fear']}, "
+        f"'joy': {response['joy']} and 'sadness': {response['sadness']}. "
+        f"The dominant emotion is {response['dominant_emotion']}."
+    )
 
 @app.route("/")
 def render_index_page():
+    """
+    Renders the main application interface.
+    """
     return render_template('index.html')
 
 if __name__ == "__main__":
